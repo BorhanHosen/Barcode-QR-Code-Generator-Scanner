@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 
 const QRCodeGenerator = () => {
   const [text, setText] = useState("https://example.com");
+  const qrRef = useRef(null); // Ref for QR Code
 
   const downloadQRCode = () => {
-    const canvas = document.querySelector("canvas");
+    const canvas = qrRef.current?.querySelector("canvas"); // Get the canvas inside the QR code div
     if (canvas) {
       const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
+      link.href = canvas.toDataURL("image/png"); // Convert to PNG
       link.download = "qrcode.png";
       link.click();
     }
@@ -23,9 +24,9 @@ const QRCodeGenerator = () => {
         onChange={(e) => setText(e.target.value)}
         className="border p-2 rounded w-full mb-2"
         placeholder="Enter text for QR Code"
-      />{" "}
-      {text ? (
-        <div>
+      />
+      {text && (
+        <div ref={qrRef} className="flex flex-col items-center">
           <QRCodeCanvas value={text} size={200} />
           <button
             onClick={downloadQRCode}
@@ -34,8 +35,6 @@ const QRCodeGenerator = () => {
             Download QR Code
           </button>
         </div>
-      ) : (
-        ""
       )}
     </div>
   );
