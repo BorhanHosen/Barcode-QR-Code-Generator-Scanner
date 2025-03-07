@@ -16,12 +16,12 @@ A React web application that allows users to **generate and scan barcodes & QR c
 
 ## 📸 Demo Screenshot
 
-![Barcode & QR Code App](https://your-image-url.com) _(Replace with actual image link)_
+![Image](https://github.com/user-attachments/assets/97aeddf7-d191-4180-91b9-306f7b078b95)
 
 ---
 
 ## 📂 Project Structure
-
+```
 📦 barcode-app
 ├── 📂 src
 │ ├── 📂 components
@@ -33,7 +33,7 @@ A React web application that allows users to **generate and scan barcodes & QR c
 │ ├── styles.css (if applicable)
 ├── package.json
 ├── README.md
-
+```
 ---
 
 ## ⚡ Installation & Setup
