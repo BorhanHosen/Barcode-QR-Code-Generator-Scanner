@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
-// import "../assets/scanner-beep.mp3";
+import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
   const [scannedDataList, setScannedDataList] = useState(new Set()); // Use Set to prevent duplicates
@@ -29,7 +29,7 @@ const BarcodeScannerWithTable = () => {
 
   // Function to play beep sound
   const playBeep = () => {
-    const beep = new Audio("../assets/scanner-beep.mp3"); // Beep sound URL
+    const beep = new Audio(scannerBeep); // Beep sound URL
     beep.play();
   };
 
