@@ -5,16 +5,20 @@ import scannerBeep from "../assets/scanner-beep.mp3";
 const BarcodeScannerWithTable = () => {
   const [scannedDataList, setScannedDataList] = useState(new Set()); // Use Set to prevent duplicates
   const [scannedArray, setScannedArray] = useState([]); // Array for displaying scanned values
+  const [scanner, setScanner] = useState(null);
 
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    const newScanner = new Html5QrcodeScanner("reader", {
+      fps: 10,
+      qrbox: 250,
+    });
 
-    scanner.render(
+    newScanner.render(
       (decodedText) => {
         if (!scannedDataList.has(decodedText)) {
           playBeep(); // Play beep sound
-          setScannedDataList((prevSet) => new Set(prevSet).add(decodedText)); // Update Set to prevent duplicates
-          setScannedArray((prevArray) => [...prevArray, decodedText]); // Update array for table display
+          setScannedDataList((prevSet) => new Set(prevSet).add(decodedText)); // Add to Set
+          setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to array
         }
       },
       (errorMessage) => {
@@ -22,14 +26,16 @@ const BarcodeScannerWithTable = () => {
       }
     );
 
+    setScanner(newScanner); // Store scanner instance
+
     return () => {
-      scanner.clear();
+      newScanner.clear(); // Cleanup scanner instance when component unmounts
     };
-  }, [scannedDataList]); // Dependency on scannedDataList to track updates
+  }, []); // Run only once when the component mounts
 
   // Function to play beep sound
   const playBeep = () => {
-    const beep = new Audio(scannerBeep); // Beep sound URL
+    const beep = new Audio(scannerBeep);
     beep.play();
   };
 
