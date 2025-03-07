@@ -2,6 +2,7 @@ import React from "react";
 import BarcodeGenerator from "./components/BarcodeGenerator";
 import BarcodeScanner from "./components/BarcodeScanner";
 import QRCodeGenerator from "./components/QRCodeGenerator";
+import BarcodeScannerWithTable from "./components/BarcodeScannerWithTable";
 
 const App = () => {
   return (
@@ -15,6 +16,9 @@ const App = () => {
       </div>
       <div className="mt-6">
         <BarcodeScanner />
+      </div>
+      <div className="mt-6">
+        <BarcodeScannerWithTable />
       </div>
     </div>
   );
