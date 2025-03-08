@@ -3,29 +3,27 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
-  const [scannedDataList, setScannedDataList] = useState([]); // Stores scanned values
-  const [scannedArray, setScannedArray] = useState([]); // Array for displaying scanned values
-  const [tempIgnore, setTempIgnore] = useState([]); // Temporarily ignores scanned values
+  const [scannedArray, setScannedArray] = useState([]); // Stores scanned values
+  const [lastScannedTime, setLastScannedTime] = useState({}); // Track scan timestamps
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
     scanner.render(
       (decodedText) => {
-        if (!scannedDataList.has(decodedText) && !tempIgnore.has(decodedText)) {
-          playBeep(); // Play beep sound
-          setScannedDataList((prevSet) => new Set(prevSet).add(decodedText)); // Add to Set
-          setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to array
+        const currentTime = new Date().getTime();
 
-          // Temporarily ignore this value for 2 seconds to allow rescanning after moving out
-          setTempIgnore((prev) => new Set(prev).add(decodedText));
-          setTimeout(() => {
-            setTempIgnore((prev) => {
-              const newIgnore = new Set(prev);
-              newIgnore.delete(decodedText);
-              return newIgnore;
-            });
-          }, 2000); // 2-second delay
+        // Allow rescanning if 2 seconds have passed since the last scan of the same barcode
+        if (
+          !lastScannedTime[decodedText] ||
+          currentTime - lastScannedTime[decodedText] > 2000
+        ) {
+          playBeep(); // Play beep sound
+          setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to list
+          setLastScannedTime((prevTimes) => ({
+            ...prevTimes,
+            [decodedText]: currentTime,
+          })); // Update last scanned time
         }
       },
       (errorMessage) => {
@@ -36,7 +34,7 @@ const BarcodeScannerWithTable = () => {
     return () => {
       scanner.clear();
     };
-  }, [scannedDataList, tempIgnore]); // Dependency array includes both lists
+  }, [lastScannedTime]); // Track updates in lastScannedTime
 
   // Function to play beep sound
   const playBeep = () => {
