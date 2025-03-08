@@ -4,26 +4,31 @@ import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
   const [scannedArray, setScannedArray] = useState([]); // Stores scanned values
-  const [lastScannedTime, setLastScannedTime] = useState({}); // Track scan timestamps
+  const [lastScannedTime, setLastScannedTime] = useState({}); // Tracks last scan time
+  const [scanner, setScanner] = useState(null); // Store scanner instance
 
   useEffect(() => {
-    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+    const html5QrCodeScanner = new Html5QrcodeScanner("reader", {
+      fps: 10,
+      qrbox: 250,
+    });
+    setScanner(html5QrCodeScanner);
 
-    scanner.render(
+    html5QrCodeScanner.render(
       (decodedText) => {
         const currentTime = new Date().getTime();
 
-        // Allow rescanning if 2 seconds have passed since the last scan of the same barcode
+        // Allow rescanning after 2 seconds
         if (
           !lastScannedTime[decodedText] ||
           currentTime - lastScannedTime[decodedText] > 2000
         ) {
           playBeep(); // Play beep sound
-          setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to list
+          setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to table
           setLastScannedTime((prevTimes) => ({
             ...prevTimes,
             [decodedText]: currentTime,
-          })); // Update last scanned time
+          })); // Update scan time
         }
       },
       (errorMessage) => {
@@ -32,9 +37,9 @@ const BarcodeScannerWithTable = () => {
     );
 
     return () => {
-      scanner.clear();
+      html5QrCodeScanner.clear();
     };
-  }, [lastScannedTime]); // Track updates in lastScannedTime
+  }, []);
 
   // Function to play beep sound
   const playBeep = () => {
