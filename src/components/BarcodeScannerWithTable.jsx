@@ -3,9 +3,9 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
-  const [scannedDataList, setScannedDataList] = useState(new Set()); // Stores scanned values
+  const [scannedDataList, setScannedDataList] = useState([]); // Stores scanned values
   const [scannedArray, setScannedArray] = useState([]); // Array for displaying scanned values
-  const [tempIgnore, setTempIgnore] = useState(new Set()); // Temporarily ignores scanned values
+  const [tempIgnore, setTempIgnore] = useState([]); // Temporarily ignores scanned values
 
   useEffect(() => {
     const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
