@@ -4,31 +4,26 @@ import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
   const [scannedArray, setScannedArray] = useState([]); // Stores scanned values
-  const [lastScannedTime, setLastScannedTime] = useState({}); // Tracks last scan time
-  const [scanner, setScanner] = useState(null); // Store scanner instance
+  const [recentScans, setRecentScans] = useState(new Set()); // Tracks recent scans
 
   useEffect(() => {
-    const html5QrCodeScanner = new Html5QrcodeScanner("reader", {
-      fps: 10,
-      qrbox: 250,
-    });
-    setScanner(html5QrCodeScanner);
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
-    html5QrCodeScanner.render(
+    scanner.render(
       (decodedText) => {
-        const currentTime = new Date().getTime();
-
-        // Allow rescanning after 2 seconds
-        if (
-          !lastScannedTime[decodedText] ||
-          currentTime - lastScannedTime[decodedText] > 2000
-        ) {
+        if (!recentScans.has(decodedText)) {
           playBeep(); // Play beep sound
           setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to table
-          setLastScannedTime((prevTimes) => ({
-            ...prevTimes,
-            [decodedText]: currentTime,
-          })); // Update scan time
+          setRecentScans((prevScans) => new Set(prevScans).add(decodedText)); // Add to recent scans
+
+          // Allow rescanning the same barcode after 2 seconds
+          setTimeout(() => {
+            setRecentScans((prevScans) => {
+              const updatedScans = new Set(prevScans);
+              updatedScans.delete(decodedText);
+              return updatedScans;
+            });
+          }, 2000);
         }
       },
       (errorMessage) => {
@@ -37,7 +32,7 @@ const BarcodeScannerWithTable = () => {
     );
 
     return () => {
-      html5QrCodeScanner.clear();
+      scanner.clear();
     };
   }, []);
 
