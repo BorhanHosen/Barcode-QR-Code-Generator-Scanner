@@ -3,22 +3,29 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
-  const [scannedDataList, setScannedDataList] = useState(new Set()); // Use Set to prevent duplicates
+  const [scannedDataList, setScannedDataList] = useState(new Set()); // Stores scanned values
   const [scannedArray, setScannedArray] = useState([]); // Array for displaying scanned values
-  const [scanner, setScanner] = useState(null);
+  const [tempIgnore, setTempIgnore] = useState(new Set()); // Temporarily ignores scanned values
 
   useEffect(() => {
-    const newScanner = new Html5QrcodeScanner("reader", {
-      fps: 10,
-      qrbox: 250,
-    });
+    const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
-    newScanner.render(
+    scanner.render(
       (decodedText) => {
-        if (!scannedDataList.has(decodedText)) {
+        if (!scannedDataList.has(decodedText) && !tempIgnore.has(decodedText)) {
           playBeep(); // Play beep sound
           setScannedDataList((prevSet) => new Set(prevSet).add(decodedText)); // Add to Set
           setScannedArray((prevArray) => [...prevArray, decodedText]); // Add to array
+
+          // Temporarily ignore this value for 2 seconds to allow rescanning after moving out
+          setTempIgnore((prev) => new Set(prev).add(decodedText));
+          setTimeout(() => {
+            setTempIgnore((prev) => {
+              const newIgnore = new Set(prev);
+              newIgnore.delete(decodedText);
+              return newIgnore;
+            });
+          }, 2000); // 2-second delay
         }
       },
       (errorMessage) => {
@@ -26,12 +33,10 @@ const BarcodeScannerWithTable = () => {
       }
     );
 
-    setScanner(newScanner); // Store scanner instance
-
     return () => {
-      newScanner.clear(); // Cleanup scanner instance when component unmounts
+      scanner.clear();
     };
-  }, []); // Run only once when the component mounts
+  }, [scannedDataList, tempIgnore]); // Dependency array includes both lists
 
   // Function to play beep sound
   const playBeep = () => {
