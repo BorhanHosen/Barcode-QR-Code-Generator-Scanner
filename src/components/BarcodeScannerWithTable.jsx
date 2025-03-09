@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Html5QrcodeScanner } from "html5-qrcode";
+import scannerBeep from "../assets/scanner-beep.mp3";
 
 const BarcodeScannerWithTable = () => {
   const [scannedCodes, setScannedCodes] = useState([]);
@@ -17,6 +18,8 @@ const BarcodeScannerWithTable = () => {
       return;
     }
 
+    playBeep(); // Play beep sound
+
     // Update scanned codes
     setScannedCodes((prev) => [
       ...prev,
@@ -32,6 +35,11 @@ const BarcodeScannerWithTable = () => {
     console.warn("Scan error:", error);
   }, []);
 
+  // Function to play beep sound
+  const playBeep = () => {
+    const beep = new Audio(scannerBeep);
+    beep.play();
+  };
   const startScanner = () => {
     const html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
       fps: 10,
